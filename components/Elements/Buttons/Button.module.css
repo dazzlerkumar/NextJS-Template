@@ -1,0 +1,121 @@
+.button {
+    height: 2.5rem;
+    /*  width: calc(100%-1rem); */
+    /*    width: 10rem;
+    width: max-content; */
+    padding: 0 1.5rem;
+    margin: 0 0.5rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    appearance: none;
+    text-decoration: none;
+    outline: none;
+    border: none;
+    line-height: 1.2;
+    text-align: center;
+    background-color: #fdab01;
+    color: #fff;
+    transition: background-color 500ms ease-out 100ms,
+        transform 50ms ease-in-out;
+    cursor: pointer;
+}
+/* Primary Button */
+.dark {
+    background-color: #fdab01 !important;
+}
+.dark:hover:enabled {
+    box-shadow: 2px 2px 2px rgb(158, 162, 177, 0.2);
+}
+.dark:active:enabled {
+    transform: scale(0.97) !important;
+}
+.dark:focus-visible {
+    outline: 2px solid #9ea2b1 !important;
+}
+.dark:disabled {
+    background-color: #F8D896 !important;
+    cursor: not-allowed !important;
+}
+
+/* Secondary Button */
+.light {
+    border: 1px solid #9ea2b1;
+    background-color: transparent !important;
+    color: #9ea2b1;
+}
+.light:hover:enabled {
+    box-shadow: 2px 2px 2px rgb(158, 162, 177, 0.2);
+}
+.light:active:enabled {
+    transform: scale(0.97) !important;
+}
+.light:focus-visible {
+    outline: 2px solid #fdab01 !important;
+}
+.light:disabled {
+    border: 2px solid #d0cfcf;
+    color: #d0cfcf;
+    cursor: not-allowed !important;
+}
+
+/* Tertiary Button */
+.text {
+    border: none;
+    background-color: transparent !important;
+    color: #fdab01;
+    font-weight: 500;
+    transition: font-weight ease-in-out 8ms;
+    height: auto !important;
+    padding: 0 0.25rem;
+}
+.text:hover:enabled {
+    text-decoration: underline;
+}
+.text:active:enabled {
+    transform: scale(0.97) !important;
+}
+.text:focus-visible {
+    outline: 2px solid #fdab01 !important;
+}
+.text:disabled {
+    color: #d0cfcf;
+    cursor: not-allowed !important;
+}
+/* Delete Button */
+.delete {
+    background: #dc3545 !important;
+}
+.delete:hover:enabled {
+    background-color: #bb2d3b !important;
+}
+.delete:active:enabled {
+    transform: scale(0.97) !important;
+}
+.delete:focus-visible {
+    outline: 2px solid #dc3545 !important;
+}
+.delete:disabled {
+    background-color: #d0cfcf !important;
+    cursor: not-allowed !important;
+}
+/* Add Button */
+.add {
+    background-color: rgba(43, 171, 38, 0.1) !important;
+    color: #2bab26 !important;
+    border-radius: 3px !important;
+    height: 2rem;
+}
+.add:hover:enabled {
+    box-shadow: 2px 2px 2px rgba(43, 171, 38, 0.1);
+}
+.add:active:enabled {
+    transform: scale(0.97) !important;
+}
+.add:focus-visible {
+    outline: 2px solid #9ea2b1 !important;
+}
+.add:disabled {
+    background-color: #d0cfcf !important;
+    cursor: not-allowed !important;
+}

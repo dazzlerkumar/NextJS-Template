@@ -1,0 +1,10 @@
+.avatarBorder{
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #565B68;
+    color: #000;
+    font-weight: 600;
+}

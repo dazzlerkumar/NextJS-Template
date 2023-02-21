@@ -1,0 +1,60 @@
+.ellipsis {
+    color: var(--primary-grey);
+    margin-left: 0.5rem;
+    font-weight: 600;
+    position: relative;
+    cursor: pointer;
+}
+/* SVG */
+.ellipsis svg {
+    font-size: 1rem;
+    margin-left: 0.2rem;
+}
+.ellipsis ul {
+    position: absolute;
+    width: max-content;
+    background: #fff;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    padding: 0.25rem 0;
+    margin: 0;
+    text-align: center;
+    z-index: var(--ellipsis);
+    list-style: none;
+    max-height: 10rem;
+    overflow-y: auto;
+    right: 0;
+    top: 0;
+}
+.ellipsis ul::-webkit-scrollbar {
+    width: 0.75rem;
+}
+.ellipsis ul::-webkit-scrollbar-track {
+    background: var(--derived-light);
+}
+.ellipsis ul::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 5px;
+    width: 0.625rem;
+}
+.ellipsis ul:first-child {
+    padding-top: 0.3em;
+}
+.ellipsis ul li {
+    display: flex;
+    font-weight: 500;
+    font-size: var(--font-smaller);
+    list-style: none;
+    color: #7e919a;
+    padding: 0 0.99rem;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+.ellipsis ul li:hover {
+    color: #231f20;
+}
+.ellipsis ul li > span {
+    display: flex;
+    align-items: center;
+    margin: 0 0.12rem;
+}

@@ -1,0 +1,13 @@
+/* JS configuration */
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            /* absolute paths for following directories */
+            "@components/*": ["components/*"],
+            "@services/*": ["services/*"],
+            "@contexts/*": ["contexts/*"],
+            "@styles/*": ["styles/*"]
+        }
+    }
+}

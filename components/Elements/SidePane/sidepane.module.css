@@ -1,0 +1,8 @@
+.container {
+    position: absolute;
+    min-width: 380px;
+    width: 20%;
+    height: 100%;
+    padding: 1rem;
+    background: #ffffff;
+}

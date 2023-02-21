@@ -1,0 +1,16 @@
+.root {
+    display: grid;
+    grid-template-rows: 5.5vh 94.5vh;
+    height: 100vh;
+    width: 100vw;
+}
+.unroot {
+    display: grid;
+    height: 100vh;
+    width: 100vw;
+}
+@media (orientation: portrait) {
+    .root {
+        position: relative;
+    }
+}
