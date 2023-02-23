@@ -2,6 +2,7 @@ import style from "./Layout.module.css";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import LocalStorageService from "@services/LocalStorageHandler";
+
 //components
 import LoadingScreen from "../../Elements/LoadingScreen";
 import Header from "../Header/Header";
@@ -19,10 +20,12 @@ function Layout({ children }) {
     const [showSidebar, setShowSidebar] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [modalComp, setModalComp] = useState(null);
-
+    let rootPath = router.pathname.split("/")[1];
     useEffect(() => {
         const token = localStorage.getAccessToken();
-        console.log(token);
+        if (router.pathname === "/") {
+            router.push("/batch");
+        }
         if (token == null) {
             /*  if (router.pathname === "/login") {
                 setLoading(false);
@@ -39,14 +42,14 @@ function Layout({ children }) {
             setLoading(false);
         }
     }, [router]);
+    let count = 0;
+
     if (isLoading) {
         return <LoadingScreen />;
     }
     return (
         <div
-            className={` ${
-                router.pathname != "/login" ? style.root : style.unroot
-            }`}
+            className={` ${rootPath !== "login" ? style.root : style.unroot}`}
             /*  style={{ width: "100vw", height: "100vh" }} */
         >
             <ManagedUI.Provider
@@ -62,11 +65,12 @@ function Layout({ children }) {
                 {openModal && (
                     <Modal setShowModal={() => {}}>{modalComp}</Modal>
                 )}
-
                 {/*  {localStorage.getAccessToken() != null && <Header />} */}
-                {router.pathname != "/login" && <Header />}
+                {rootPath !== "login" && <Header />}
                 <div className="container">{children}</div>
             </ManagedUI.Provider>
+            {/* Toast Container */}
+            <ToastContainer position="bottom-left" theme="dark" />
         </div>
     );
 }
