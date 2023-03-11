@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import style from "./SelectField.module.css";
 //Assets
-import { GrPowerReset } from "react-icons/gr";
+import { RiCheckboxCircleFill } from "react-icons/ri";
+import { MdOutlineClose } from "react-icons/md";
+import { MdRadioButtonChecked, MdRadioButtonUnchecked } from "react-icons/md";
+//Takes simple array of options and returns a select field
 export function SimpleSelect({
     options,
     selected,
@@ -10,22 +13,171 @@ export function SimpleSelect({
     activeOptionIndex,
     required,
     bgColor,
+    color,
     padding,
     margin,
     label,
     placeholder,
     fontsize,
+    disabled,
+    minWidth,
 }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(selected);
-    const clickRef = useRef();
-    const toggling = () => setIsOpen(!isOpen);
+    const [localOptions, setLocalOptions] = useState();
+    const [selectedOption, setSelectedOption] = useState(null);
+    const inputRef = useRef();
+    const toggling = () => {
+        if (!disabled) {
+            if (isOpen) {
+                inputRef.current.blur();
+            } else {
+                inputRef.current.focus();
+            }
+
+            setIsOpen(!isOpen);
+        }
+    };
+
+    const filterOptions = (e) => {
+        //resetting the options on every render
+        // setSelectedOption(null);
+        //filtering the options
+        let filteredOptions = options.filter((option) =>
+            option.toLowerCase().includes(e.target.value.toLowerCase())
+        );
+        if (filteredOptions.length > 0) {
+            setLocalOptions(filteredOptions);
+            setSelectedOption(filterOptions[0]);
+        } else {
+            setLocalOptions([]);
+        }
+    };
 
     const onOptionClicked = (value, i) => {
         setSelectedOption(value);
         activeOptionIndex(i);
         setselected(value);
         setIsOpen(false);
+    };
+    useEffect(() => {
+        //resetting the options on every render
+        setLocalOptions(options);
+        setSelectedOption(selected);
+    }, [isOpen, selected, options]);
+    return (
+        <div
+            className={
+                disabled
+                    ? `${style.dropdown} ${style.dropdownDisabled} `
+                    : `${style.dropdown} `
+            }
+            style={{
+                margin: margin,
+                fontSize: fontsize,
+                backgroundColor: bgColor,
+                minWidth: minWidth,
+            }}
+            unselectable
+        >
+            <div
+                onClick={toggling}
+                style={{ padding: padding, color: color }}
+                className={style.innerDiv}
+            >
+                <input
+                    onChange={(e) => {
+                        filterOptions(e);
+                        setSelectedOption(e.target.value);
+                    }}
+                    placeholder={placeholder}
+                    value={selectedOption}
+                    required={required}
+                    disabled={disabled}
+                    ref={(input) => (inputRef.current = input)}
+                />
+                {isOpen ? (
+                    <IoMdArrowDropup color={color} />
+                ) : (
+                    <IoMdArrowDropdown color={color} />
+                )}
+            </div>{" "}
+            {isOpen && (
+                <ul className={style.ul}>
+                    {localOptions !== undefined && localOptions.length > 0 ? (
+                        localOptions.map((option, i) => (
+                            <li
+                                onClick={() => onOptionClicked(option, i)}
+                                key={i}
+                            >
+                                {option}
+                            </li>
+                        ))
+                    ) : (
+                        <li>No Options</li>
+                    )}
+                </ul>
+            )}
+        </div>
+    );
+}
+SimpleSelect.defaultProps = {
+    label: "Select Field",
+    placeholder: "Select",
+    padding: "0.35rem 1rem",
+    fontsize: "0.875rem",
+    activeOptionIndex: () => {},
+    setselected: () => {},
+    disabled: false,
+};
+export function SelectSubList({
+    options,
+    selected,
+    setselected,
+    bgColor,
+    color,
+    padding,
+    margin,
+    placeholder,
+    fontsize,
+    disabled,
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [subOptionArray, setSubOptionArray] = useState([]);
+    const clickRef = useRef();
+    const toggling = () => setIsOpen(!isOpen);
+
+    const onOptionClicked = (value, i) => {
+        setSelectedOption(value, subOptionArray);
+        /*     activeOptionIndex(i); */
+        setselected(value);
+        /* setIsOpen(false); */
+
+        setSubOptionArray([]);
+    };
+    const subOptionSelect = (event, option, suboption, index) => {
+        event.stopPropagation();
+        let tempSubOptionArray = subOptionArray;
+        let foundSubOption = null;
+        let foundIndex = null;
+        for (let i = 0; i < tempSubOptionArray.length; i++) {
+            if (tempSubOptionArray[i] === suboption) {
+                foundSubOption = tempSubOptionArray[i];
+                foundIndex = i;
+            }
+        }
+        if (foundSubOption) {
+            tempSubOptionArray.splice(foundIndex, 1);
+            setSubOptionArray(tempSubOptionArray);
+            setselected(option, tempSubOptionArray);
+            setSelectedOption(option);
+        } else {
+            tempSubOptionArray.push(suboption);
+
+            setSubOptionArray(tempSubOptionArray);
+            setselected(option, tempSubOptionArray);
+            setSelectedOption(option);
+        }
     };
     const closeDropdown = (e) => {
         setIsOpen(false);
@@ -42,20 +194,29 @@ export function SimpleSelect({
         if (isOpen) {
             document.addEventListener("mousedown", clickOutside);
         }
+        setSelectedOption(selected);
         return () => {
             document.removeEventListener("mousedown", clickOutside);
         };
-    }, [selectedOption, isOpen]);
-
+    }, [selectedOption, isOpen, selected]);
     return (
         <div
-            className={style.dropdown}
-            style={{ margin: margin, fontSize: fontsize }}
+            className={
+                disabled
+                    ? `${style.dropdown} ${style.subOpdropdown} ${style.dropdownDisabled} `
+                    : `${style.dropdown} ${style.subOpdropdown} `
+            }
+            style={{
+                margin: margin,
+                fontSize: fontsize,
+                backgroundColor: bgColor,
+            }}
             ref={clickRef}
+            unselectable
         >
             <div
-                onClick={toggling}
-                style={{ padding: padding }}
+                onClick={disabled ? () => {} : toggling}
+                style={{ padding: padding, color: color }}
                 className={style.innerDiv}
             >
                 <p>
@@ -64,21 +225,81 @@ export function SimpleSelect({
                     ) : (
                         <p
                             className={style.placeholderText}
-                            style={{ fontSize: fontsize }}
+                            style={{ fontSize: fontsize, color: color }}
                         >
                             {" "}
                             {placeholder}
                         </p>
                     )}
                 </p>
-
-                <FaChevronDown />
+                {isOpen ? (
+                    <IoMdArrowDropup color={color} />
+                ) : (
+                    <IoMdArrowDropdown color={color} />
+                )}
             </div>{" "}
             {isOpen && (
-                <ul onMouseLeave={() => closeDropdown()}>
+                <ul onMouseLeave={() => closeDropdown()} className={style.ul}>
                     {options.map((option, i) => (
-                        <li onClick={() => onOptionClicked(option, i)} key={i}>
-                            {option}
+                        <li
+                            onClick={() => onOptionClicked(option.option, i)}
+                            key={i}
+                            className={
+                                selected != undefined &&
+                                selectedOption.toLowerCase() ===
+                                    option.option.toLowerCase()
+                                    ? style.selected
+                                    : null
+                            }
+                        >
+                            <span>
+                                {selected != undefined &&
+                                selectedOption.toLowerCase() ===
+                                    option.option.toLowerCase() ? (
+                                    <MdRadioButtonChecked />
+                                ) : (
+                                    <MdRadioButtonUnchecked />
+                                )}
+                                {option.option}
+                            </span>
+
+                            {option.subOptions != null && (
+                                <ul className={style.InnerUL}>
+                                    {option.subOptions.map((subOp, k) => {
+                                        let flag = false;
+                                        for (
+                                            let i = 0;
+                                            i < subOptionArray.length;
+                                            i++
+                                        ) {
+                                            if (subOptionArray[i] === subOp) {
+                                                flag = true;
+                                            }
+                                        }
+                                        return (
+                                            <li
+                                                key={k}
+                                                className={style.subListItem}
+                                                onClick={(event) =>
+                                                    subOptionSelect(
+                                                        event,
+                                                        option.option,
+                                                        subOp,
+                                                        k
+                                                    )
+                                                }
+                                            >
+                                                {flag ? (
+                                                    <RiCheckboxCircleFill color="var(--blue)" />
+                                                ) : (
+                                                    <RiCheckboxCircleFill color="var(--grey-1)" />
+                                                )}
+                                                {subOp}
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -87,175 +308,293 @@ export function SimpleSelect({
     );
 }
 
-SimpleSelect.defaultProps = {
-    dropdownHeader: "Company XZY",
-    options: ["Company JQL2", "Company AB", "Company 1"],
+SelectSubList.defaultProps = {
+    /* options: ["Option 1", "Option 3", "Option 2", "Long Item Labelsdjbfbh"], */
+    options: [
+        {
+            option: "Option 1",
+            subOptions: null,
+        },
+        {
+            option: "Option 2",
+            subOptions: ["Sub 1", "Sub 2", "Sub 3", "Sub 4", "Sub 5"],
+        },
+    ],
     label: "Select Field",
     placeholder: "Select",
+    padding: "0.35rem 1rem",
     fontsize: "0.875rem",
     activeOptionIndex: () => {},
+    setselected: () => {},
+    disabled: false,
 };
 
-/* Select with Search */
-export function SelectWithSearch({
-    label,
+//take an array of objects and return an array of objects with the key value pair
+export function SelectForObjects({
     options,
-    setSearchKeyword,
+    optionName,
+    optionID,
+    selected,
     setselected,
+    activeOptionIndex,
+    required,
+    bgColor,
+    color,
     padding,
     margin,
+    label,
     placeholder,
+    fontsize,
+    disabled,
+    minWidth,
 }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState("Select");
-    const searchInput = useRef(null);
-    const clickRef = useRef();
-    const toggling = () => setIsOpen(!isOpen);
+    const [localOptions, setLocalOptions] = useState();
+    const [selectedOption, setSelectedOption] = useState(null);
+    const inputRef = useRef();
+    const toggling = () => {
+        if (!disabled) {
+            if (isOpen) {
+                inputRef.current.blur();
+            } else {
+                inputRef.current.focus();
+            }
 
-    const onOptionClicked = (option, i) => {
-        setSelectedOption(option.name);
-
-        setselected(option);
-        setIsOpen(false);
-    };
-    const closeDropdown = (e) => {
-        setIsOpen(false);
-    };
-    // Track events outside scope
-    const clickOutside = (e) => {
-        if (clickRef.current.contains(e.target)) {
-            return;
+            setIsOpen(!isOpen);
         }
-        // outside click
+    };
+
+    const filterOptions = (e) => {
+        let filteredOptions = options.filter((option) =>
+            option[optionName]
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase())
+        );
+        if (filteredOptions.length > 0) {
+            setLocalOptions(filteredOptions);
+        } else {
+            setLocalOptions([]);
+            setSelectedOption(null);
+        }
+    };
+    const onOptionClicked = (value, i) => {
+        setSelectedOption(value[optionName]);
+        activeOptionIndex(value[optionID]);
+        setselected(value[optionName], value[optionID]);
         setIsOpen(false);
     };
     useEffect(() => {
-        if (isOpen) {
-            document.addEventListener("mousedown", clickOutside);
-            searchInput.current.focus();
-        }
-        return () => {
-            document.removeEventListener("mousedown", clickOutside);
-        };
-    }, [selectedOption, isOpen]);
+        setLocalOptions(options);
+
+        setSelectedOption(selected);
+    }, [isOpen, selected, options]);
 
     return (
         <div
-            className={style.dropdown}
-            style={{ margin: margin }}
-            ref={clickRef}
+            className={
+                disabled
+                    ? `${style.dropdown} ${style.dropdownDisabled} `
+                    : `${style.dropdown} `
+            }
+            style={{
+                margin: margin,
+                fontSize: fontsize,
+                backgroundColor: bgColor,
+                minWidth: minWidth,
+            }}
+            unselectable
         >
-            <label>{label}</label>
             <div
                 onClick={toggling}
-                style={{ padding: padding }}
+                style={{ padding: padding, color: color }}
                 className={style.innerDiv}
             >
+                <input
+                    onChange={(e) => {
+                        filterOptions(e);
+                        setSelectedOption(e.target.value);
+                    }}
+                    placeholder={placeholder}
+                    value={selectedOption}
+                    required={required}
+                    disabled={disabled}
+                    ref={(input) => (inputRef.current = input)}
+                />
                 {isOpen ? (
-                    <input
-                        ref={searchInput}
-                        placeholder={selectedOption}
-                        onChange={(e) => setSearchKeyword(e.target.value)}
-                        required
-                        onBlur={() => setSearchKeyword(null)}
-                    />
+                    <IoMdArrowDropup color={color} />
                 ) : (
-                    <p>{selectedOption}</p>
+                    <IoMdArrowDropdown color={color} />
                 )}
-                <FaChevronDown />
             </div>{" "}
             {isOpen && (
-                <ul onMouseLeave={() => closeDropdown()}>
-                    {options.map((option, i) => (
-                        <li onClick={() => onOptionClicked(option, i)} key={i}>
-                            {option.name}
-                        </li>
-                    ))}
+                <ul className={style.ul}>
+                    {localOptions !== undefined && localOptions.length > 0 ? (
+                        localOptions.map((option, i) => (
+                            <li
+                                onClick={() => onOptionClicked(option, i)}
+                                key={i}
+                            >
+                                {option[optionName]}
+                            </li>
+                        ))
+                    ) : (
+                        <li>No Options</li>
+                    )}
                 </ul>
             )}
         </div>
     );
 }
 
-SelectWithSearch.defaultProps = {
-    dropdownHeader: "Company XZY",
-    options: ["Company JQL2", "Company AB", "Company 1"],
+SelectForObjects.defaultProps = {
+    options: ["Option 1", "Option 1", "Option 1", "Long Item Labelsdjbfbh"],
     label: "Select Field",
     placeholder: "Select",
+    padding: "0.35rem 1rem",
+    fontsize: "0.875rem",
+    activeOptionIndex: () => {},
+    setselected: () => {},
+    disabled: false,
 };
 
-/* Multiple Select Dropdown */
+/* multiple */
 export function MultiSelect({
     options,
+    optionName,
+    optionID,
     selected,
     setselected,
+    required,
+    bgColor,
+    color,
     padding,
     margin,
     label,
+    placeholder,
+    fontsize,
+    disabled,
+    minWidth,
+    title,
 }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [localOptions, setLocalOptions] = useState();
     const [selectedOption, setSelectedOption] = useState(selected);
-    const clickRef = useRef();
-    const toggling = () => setIsOpen(!isOpen);
+    const [searchString, setSearchString] = useState("");
+    let selectedOptionsLength = selected.length;
+    const inputRef = useRef();
+    const toggling = () => {
+        if (!disabled) {
+            if (isOpen) {
+                inputRef.current.blur();
+            } else {
+                inputRef.current.focus();
+            }
+
+            setIsOpen(!isOpen);
+        }
+    };
+    //Searching
+    const filterOptions = (e) => {
+        let filteredOptions = options.filter((option) =>
+            option[optionName]
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase())
+        );
+        if (filteredOptions.length > 0) {
+            setLocalOptions(filteredOptions);
+        } else {
+            setLocalOptions([]);
+        }
+    };
+    //Selecting
     const handleSelect = async (e, option) => {
         e.stopPropagation();
-
-        const found = selectedOption.find((s) => s === option);
+        const found = selectedOption.find(
+            (s) => s[optionID] === option[optionID]
+        );
         if (found) {
-            const newSelected = selectedOption.filter((s) => s !== option);
+            const newSelected = selectedOption.filter(
+                (s) => s[optionID] !== option[optionID]
+            );
             setSelectedOption(newSelected);
             setselected(newSelected);
 
             return;
         }
-        const newSelected = [...selectedOption, option];
-        setSelectedOption(newSelected);
-        setselected(newSelected);
-    };
-
-    const closeDropdown = (e) => {
-        setIsOpen(false);
-    };
-    // Track events outside scope
-    const clickOutside = (e) => {
-        if (clickRef.current.contains(e.target)) {
-            return;
-        }
-        // outside click
-        setIsOpen(false);
+        const existSelection = [...selected, option];
+        setSelectedOption(existSelection);
+        setselected(existSelection);
     };
     useEffect(() => {
-        if (isOpen) {
-            document.addEventListener("mousedown", clickOutside);
-        }
-        return () => {
-            document.removeEventListener("mousedown", clickOutside);
-        };
+        //reset local options
+        setLocalOptions(options);
+        //cleaning last searched
+        setSearchString("");
     }, [selectedOption, isOpen]);
 
     return (
         <div
-            className={style.dropdown}
-            style={{ margin: margin }}
-            ref={clickRef}
+            className={
+                disabled
+                    ? `${style.dropdown} ${style.dropdownDisabled} `
+                    : `${style.dropdown} `
+            }
+            style={{
+                margin: margin,
+                fontSize: fontsize,
+                backgroundColor: bgColor,
+                minWidth: minWidth,
+            }}
+            title={title}
         >
-            <label>{label}</label>
             <div
                 onClick={toggling}
-                style={{ padding: padding }}
-                className={style.innerDiv}
+                style={{ padding: padding, color: color }}
+                className={`${style.innerDiv} ${style.multipleSelectInnerDiv} `}
             >
-                <div className={style.selectedOptionList}>
-                    {selectedOption.length == 0 ? (
-                        <p>Click on options to select & deselect</p>
+                {/*   {isOpen ? ( */}
+                <input
+                    onChange={(e) => {
+                        filterOptions(e);
+                        setSearchString(e.target.value);
+                    }}
+                    placeholder={placeholder}
+                    value={searchString}
+                    required={required}
+                    autoFocus
+                    disabled={disabled}
+                    ref={(input) => (inputRef.current = input)}
+                    style={
+                        isOpen
+                            ? {
+                                  position: "absolute",
+                                  zIndex: "1",
+                                  backgroundColor: "#fff",
+                                  width: "60%",
+                              }
+                            : { position: "absolute", zIndex: "-1" }
+                    }
+                />
+                {/*    ) : (  */}
+                <div
+                    className={style.selectedOptionList}
+                    /*   style={isOpen ? { display: "none" } : { display: "block" }} */
+                >
+                    {selected.length == 0 ? (
+                        <p className={style.placeholderText}>{placeholder}</p>
                     ) : (
-                        selectedOption.map((option, key) => (
-                            <span key={key} className={style.selectedOptionBox}>
-                                <p>{option}</p>
-                            </span>
-                        ))
+                        <p
+                            title={
+                                selected[selectedOptionsLength - 1][optionName]
+                            }
+                        >
+                            {selected[selectedOptionsLength - 1][optionName]}{" "}
+                            {selectedOptionsLength > 1 &&
+                                `+ ${selected.length - 1}`}
+                        </p>
                     )}
                 </div>
+                {/*  )} */}
                 <div className={style.selectedOptionList}>
                     <span
                         onClick={(e) => {
@@ -264,36 +603,64 @@ export function MultiSelect({
                             setSelectedOption([]);
                         }}
                     >
-                        <GrPowerReset />
+                        <MdOutlineClose />
                     </span>
 
-                    <FaChevronDown />
+                    {isOpen ? (
+                        <IoMdArrowDropup color={color} />
+                    ) : (
+                        <IoMdArrowDropdown color={color} />
+                    )}
                 </div>
             </div>{" "}
             {isOpen && (
-                <ul onMouseLeave={() => closeDropdown()}>
-                    {options.map((option, index) => {
-                        const isSelected = selectedOption.find(
-                            (s) => s === option
-                        );
-                        return (
-                            <li
-                                onClick={(e) => handleSelect(e, option)}
-                                key={index}
-                            >
-                                <div className={style.multiselectOption}>
-                                    <p className="m-0 dark:text-white">
-                                        {option}
-                                    </p>
-                                    {isSelected && (
-                                        <p className={style.selectedText}>
-                                            Selected
+                <ul
+                    onMouseLeave={() => {
+                        setIsOpen(false);
+                        setSearchString("");
+                    }}
+                    style={{
+                        listStyle: "none",
+                        padding: "0",
+                    }}
+                    className={style.ul}
+                >
+                    {localOptions !== undefined && localOptions.length > 0 ? (
+                        localOptions.map((option, index) => {
+                            const isSelected = selectedOption.find(
+                                (s) => s[optionID] === option[optionID]
+                            );
+                            return (
+                                <li
+                                    onClick={(e) => handleSelect(e, option)}
+                                    key={index}
+                                >
+                                    <div className={style.multiselectOption}>
+                                        {isSelected ? (
+                                            <p className={style.selectedText}>
+                                                <RiCheckboxCircleFill color="var(--blue)" />
+                                            </p>
+                                        ) : (
+                                            <p className={style.selectedText}>
+                                                <RiCheckboxCircleFill />
+                                            </p>
+                                        )}
+                                        <p className="m-0 dark:text-white">
+                                            {option[optionName]}
                                         </p>
-                                    )}
-                                </div>
-                            </li>
-                        );
-                    })}
+                                    </div>
+                                </li>
+                            );
+                        })
+                    ) : (
+                        <li style={{ cursor: "no-drop" }}>
+                            <div className={style.multiselectOption}>
+                                <p className="m-0 dark:text-white">
+                                    No options available
+                                </p>
+                            </div>
+                        </li>
+                    )}
                 </ul>
             )}
         </div>
@@ -305,40 +672,43 @@ MultiSelect.defaultProps = {
     options: ["Company JQL2", "Company AB", "Company 1"],
     label: "Select Field",
 };
-/*End of Multiple Select Dropdown */
 
-export function SelectForObjectArray({
+export function AdvanceSelect({
     options,
-    key,
+    optionName,
+    optionID,
     selected,
-    defaultPlaceholder,
     setselected,
-    label,
+    activeOptionIndex,
     required,
+    bgColor,
+    color,
     padding,
+    margin,
+    label,
+    placeholder,
+    fontsize,
+    disabled,
+    minWidth,
 }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(selected);
-
+    const [selectedOption, setSelectedOption] = useState(null);
     const clickRef = useRef();
-    if (options.length == 0) {
-        options.push("-");
-    }
     const toggling = () => setIsOpen(!isOpen);
 
-    const onOptionClicked = (value) => {
-        setSelectedOption(value.name);
-        setselected(value.id);
+    const onOptionClicked = (value, i) => {
+        setSelectedOption(value[optionName]);
+
+        setselected(value);
         setIsOpen(false);
     };
+
     const closeDropdown = (e) => {
         setIsOpen(false);
     };
     // Track events outside scope
     const clickOutside = (e) => {
         if (clickRef.current.contains(e.target)) {
-            // inside click
-
             return;
         }
         // outside click
@@ -348,69 +718,72 @@ export function SelectForObjectArray({
         if (isOpen) {
             document.addEventListener("mousedown", clickOutside);
         }
+        setSelectedOption(selected);
         return () => {
             document.removeEventListener("mousedown", clickOutside);
         };
-    }, [selectedOption, isOpen]);
+    }, [isOpen, selected]);
+
     return (
         <div
-            className={style.dropdown}
-            style={{ padding: padding }}
+            className={
+                disabled
+                    ? `${style.dropdown} ${style.dropdownDisabled} `
+                    : `${style.dropdown} `
+            }
+            style={{
+                margin: margin,
+                fontSize: fontsize,
+                backgroundColor: bgColor,
+                minWidth: minWidth,
+            }}
             ref={clickRef}
+            unselectable
         >
-            <label>{label}</label>
-            <div className={style.objectDropdown}>
-                <div onClick={toggling}>
-                    <input
-                        value={selectedOption}
-                        placeholder={defaultPlaceholder}
-                        required={required}
-                    />
-                    <FaChevronDown />
-                </div>
-
+            <div
+                onClick={disabled ? () => {} : toggling}
+                style={{ padding: padding, color: color }}
+                className={style.innerDiv}
+            >
+                <p>
+                    {selected != undefined && selected.length != 0 ? (
+                        selectedOption
+                    ) : (
+                        <p
+                            className={style.placeholderText}
+                            style={{ fontSize: fontsize, color: color }}
+                        >
+                            {" "}
+                            {placeholder}
+                        </p>
+                    )}
+                </p>
                 {isOpen ? (
-                    <ul onMouseLeave={() => closeDropdown()}>
-                        {options.map((option, i) => (
-                            <li onClick={() => onOptionClicked(option)} key={i}>
-                                {option[key]}
-                            </li>
-                        ))}
-                    </ul>
-                ) : null}
-            </div>
+                    <IoMdArrowDropup color={color} />
+                ) : (
+                    <IoMdArrowDropdown color={color} />
+                )}
+            </div>{" "}
+            {isOpen && (
+                <ul onMouseLeave={() => closeDropdown()} className={style.ul}>
+                    {options.map((option, i) => (
+                        <li onClick={() => onOptionClicked(option, i)} key={i}>
+                            {option[optionName]}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 }
 
-SelectForObjectArray.defaultProps = {
-    dropdownHeader: "Company XZY",
-    key: "name",
-    options: [
-        {
-            id: 1,
-            name: "Option 1",
-        },
-        {
-            id: 2,
-            name: "Option 2",
-        },
-        {
-            id: 3,
-            name: "Option 3",
-        },
-        {
-            id: 4,
-            name: "Option 4",
-        },
-        {
-            id: 5,
-            name: "Option 5",
-        },
-        {
-            id: 6,
-            name: "Option 6",
-        },
-    ],
-    defaultPlaceholder: "Select",
+SelectForObjects.defaultProps = {
+    options: ["Option 1", "Option 1", "Option 1", "Long Item Labelsdjbfbh"],
+    label: "Select Field",
+    placeholder: "Select",
+    padding: "0.35rem 1rem",
+    fontsize: "0.875rem",
+    activeOptionIndex: () => {},
+    setselected: () => {},
+    disabled: false,
 };

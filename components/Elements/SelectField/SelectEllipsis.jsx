@@ -46,8 +46,8 @@ export default function SelectEllipsis({ options, setselected, setRefresh }) {
                 <ul>
                     {options.map((option, i) => (
                         <li onClick={() => onOptionClicked(option)} key={i}>
-                            <span>{option?.icon}</span>
-                            {" " + option.name}
+                            {/* <span>{option?.icon}</span> */}
+                            {" " + option}
                         </li>
                     ))}
                 </ul>
