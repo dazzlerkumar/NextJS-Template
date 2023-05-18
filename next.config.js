@@ -13,6 +13,5 @@ module.exports = {
     images: {
         domains: [],
     },
-
     env: { base_url: "/" },
 };

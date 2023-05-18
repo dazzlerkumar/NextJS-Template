@@ -480,7 +480,7 @@ export function MultiSelect({
     const [localOptions, setLocalOptions] = useState();
     const [selectedOption, setSelectedOption] = useState(selected);
     const [searchString, setSearchString] = useState("");
-    let selectedOptionsLength = selected.length;
+    let selectedOptionsLength = selectedOption.length;
     const inputRef = useRef();
     const toggling = () => {
         if (!disabled) {
@@ -668,9 +668,34 @@ export function MultiSelect({
 }
 
 MultiSelect.defaultProps = {
-    dropdownHeader: "Company XZY",
-    options: ["Company JQL2", "Company AB", "Company 1"],
+    options: [
+        {
+            id: 1,
+            name: "Mai Pehla",
+        },
+        {
+            id: 2,
+            name: "Mere ko bhi 1st Ane ka hai",
+        },
+        {
+            id: 3,
+            name: "Atleast, I'm not least",
+        },
+        {
+            id: 4,
+            name: "First from last :)",
+        },
+    ],
+    optionName: "name",
+    optionID: "id",
     label: "Select Field",
+    placeholder: "Select",
+    padding: "0.35rem 1rem",
+    fontsize: "0.875rem",
+    activeOptionIndex: () => {},
+    selected: [],
+    setselected: () => {},
+    disabled: false,
 };
 
 export function AdvanceSelect({

@@ -4,13 +4,13 @@ import { useRouter } from "next/router";
 import LocalStorageService from "@services/LocalStorageHandler";
 
 //components
-import LoadingScreen from "../../Elements/LoadingScreen";
-import Header from "../Header/Header";
+import LoadingScreen from "../Elements/LoadingScreen";
+import Header from "../Common/Header/Header";
 
 //Contexts
 import { GlobalContext } from "@contexts/GlobalData";
 import { ManagedUI } from "@contexts/ManagedUI";
-import Modal from "../Modal";
+import Modal from "../Common/Modal";
 
 function Layout({ children }) {
     const localStorage = LocalStorageService.getService();
@@ -23,9 +23,6 @@ function Layout({ children }) {
     let rootPath = router.pathname.split("/")[1];
     useEffect(() => {
         const token = localStorage.getAccessToken();
-        if (router.pathname === "/") {
-            router.push("/batch");
-        }
         if (token == null) {
             /*  if (router.pathname === "/login") {
                 setLoading(false);
@@ -42,7 +39,6 @@ function Layout({ children }) {
             setLoading(false);
         }
     }, [router]);
-    let count = 0;
 
     if (isLoading) {
         return <LoadingScreen />;
@@ -70,7 +66,7 @@ function Layout({ children }) {
                 <div className="container">{children}</div>
             </ManagedUI.Provider>
             {/* Toast Container */}
-            <ToastContainer position="bottom-left" theme="dark" />
+            {/*      <ToastContainer position="bottom-left" theme="dark" /> */}
         </div>
     );
 }
